@@ -6,5 +6,7 @@
 
         public int TitleId { get; set; }
 
+        public string Copies { get; set; }
+
     }
 }

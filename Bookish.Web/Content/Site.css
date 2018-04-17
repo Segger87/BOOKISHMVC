@@ -24,5 +24,14 @@ textarea {
 }
 
 .books {
+    margin: 10px;
     border-bottom: solid black 2px;
+}
+
+.book-rows {
+    margin: 10px;
+}
+
+button {
+    margin: 10px;
 }

@@ -35,5 +35,17 @@ namespace Bookish.DataAccess.Services
 
             return db.Query<BookTitle>(sqlString).ToList();
         }
+
+        public static Book CopiesOfBooks(int titleId)
+        {
+            var sqlString = "SELECT titleID, COUNT(TitleID) as Copies from tblBook " +
+                            "GROUP by TitleID " +
+                            "HAVING TitleID ='" + titleId + "'";
+
+            IDbConnection db =
+                new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
+
+            return db.Query<Book>(sqlString).FirstOrDefault();
+        }
     }
 }

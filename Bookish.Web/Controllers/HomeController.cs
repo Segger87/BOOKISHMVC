@@ -52,5 +52,11 @@ namespace Bookish.Web.Controllers
 
             return View();
         }
+
+        public ActionResult BookDetails(int titleId)
+        {
+            var copies = BookService.CopiesOfBooks(titleId);
+            return View(copies);
+        }
     }
 }
