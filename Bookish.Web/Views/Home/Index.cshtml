@@ -1,0 +1,25 @@
+﻿@model Bookish.Web.Models.HomeViewModel
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>Bookish</h1>
+    <p class="lead">Welcome back @Model.FirstName</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>@Model.FirstName you have the following books due:</h2>
+
+        @foreach (var book in Model.Books)
+        {
+            <div> Book: @book.Title</div>
+            <div>Date of Expected Return: @book.DueDate.ToShortDateString() </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <h1>@Html.ActionLink("Click Here To View The Library", "Library", "Home")</h1>
+    </div>
+</div>

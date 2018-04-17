@@ -1,0 +1,21 @@
+﻿@using PagedList.Mvc;
+@model PagedList.PagedList<Bookish.DataAccess.DataModels.BookTitle>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    @foreach (var title in Model)
+    {
+        <div class="books">
+        <p>@title.Title</p>
+        <p>@title.Author</p>
+        <p>@title.Isbn</p>
+            <br />
+        </div>
+    }
+    @Html.PagedListPager(Model, page => Url.Action("Library",
+        new { page, pageSize = Model.PageSize}))
+    showing @Model.FirstItemOnPage to @Model.LastItemOnPage
+    of @Model.TotalItemCount Titles
+</div>
