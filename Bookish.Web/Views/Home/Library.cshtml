@@ -7,7 +7,15 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<div>
+    @using (Html.BeginForm())
+    {
+        <p>
+            Find by name: @Html.TextBox("SearchString")  
+            <input type="submit" value="Search" /></p>
+    }
 
+</div>
 <div>
     @foreach (var title in Model)
     {
@@ -24,7 +32,7 @@
                 </div>
                 <div class="books">
                     @*<Button value="@title.TitleId">More Info</Button>*@
-                    @Html.ActionLink("More Info", "BookDetails", "Home", new { titleId = @title.TitleId }, null)
+                    @Html.ActionLink("More Info", "BookDetails", "Home", new { titleId = @title.TitleId, title = @title.Title }, null)
                 </div>
             </div>
         </div>

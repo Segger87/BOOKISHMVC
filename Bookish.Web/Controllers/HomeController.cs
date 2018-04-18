@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web;
+using System.Web.ApplicationServices;
 using System.Web.Mvc;
 using Bookish.DataAccess.DataModels;
 using Bookish.DataAccess.Services;
@@ -20,6 +23,8 @@ namespace Bookish.Web.Controllers
                 var userId = userManager.FindById(User.Identity.GetUserId()).Email;
                 var usersFirstName = UserService.RetriveFirstName(userId);
                 var userBooks = BookService.BooksForUser(userId);
+                
+   
                 return View(new HomeViewModel{
                     Books = userBooks,
                     FirstName = usersFirstName
@@ -32,10 +37,15 @@ namespace Bookish.Web.Controllers
             });
         }
 
-        public ActionResult Library(int page = 1, int pagesize = 2)
+        public ActionResult Library(string searchString, int page = 1, int pagesize = 2)
         {
-            var title = BookService.listTitles();
-            PagedList<BookTitle> model = new PagedList<BookTitle>(title, page, pagesize);
+            var titles = BookService.listTitles();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                titles = titles.Where(s => s.Title.Contains(searchString)).ToList();
+            }
+           
+            PagedList<BookTitle> model = new PagedList<BookTitle>(titles, page, pagesize);
             return View(model);
         }
 
@@ -53,10 +63,17 @@ namespace Bookish.Web.Controllers
             return View();
         }
 
-        public ActionResult BookDetails(int titleId)
+        public ActionResult BookDetails(int titleId, string title)
         {
             var copies = BookService.CopiesOfBooks(titleId);
-            return View(copies);
+            var borrowed = BookService.BorrowedCopies(titleId);
+            return View(new BookViewModel
+            {
+                TitleId = titleId,
+                Copies = copies,
+                Borrowed = borrowed,
+                Title = title
+            });
         }
     }
 }

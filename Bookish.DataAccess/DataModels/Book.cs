@@ -1,4 +1,6 @@
-﻿namespace Bookish.DataAccess.DataModels
+﻿using System;
+
+namespace Bookish.DataAccess.DataModels
 {
     public class Book
     {
@@ -6,7 +8,11 @@
 
         public int TitleId { get; set; }
 
-        public string Copies { get; set; }
+        public int Copies { get; set; }
+
+        public string EmailAddress { get; set; }
+
+        public DateTime DueDate { get; set; }
 
     }
 }

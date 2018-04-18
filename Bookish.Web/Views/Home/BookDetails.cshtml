@@ -1,4 +1,23 @@
-﻿@model Bookish.DataAccess.DataModels.Book
+﻿@model Bookish.Web.Models.BookViewModel
 
+<div>
+    <h2>Title: @Model.Title Number available in the Library: @Model.Copies</h2>
+    @Html.ActionLink("Rent A Copy", "SubtractBook", "Home", new { TitleID = Model.TitleId }, null)
 
-<h2>there is @Model.Copies of </h2>
+</div>
+
+<div class="container">
+<div class="row">
+@foreach (var item in Model.Borrowed)
+{
+
+    <div class="col-md-3">
+        <p class="book-rows">Borrowed by: @item.EmailAddress</p>
+    </div>
+    <div class="col-md-3">
+        <p class="book-rows">Due to be return: @item.DueDate.ToShortDateString()</p>
+    </div>
+}
+            </div>
+        </div>
+

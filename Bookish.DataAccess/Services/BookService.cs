@@ -36,7 +36,7 @@ namespace Bookish.DataAccess.Services
             return db.Query<BookTitle>(sqlString).ToList();
         }
 
-        public static Book CopiesOfBooks(int titleId)
+        public static int CopiesOfBooks(int titleId)
         {
             var sqlString = "SELECT titleID, COUNT(TitleID) as Copies from tblBook " +
                             "GROUP by TitleID " +
@@ -45,7 +45,40 @@ namespace Bookish.DataAccess.Services
             IDbConnection db =
                 new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
 
-            return db.Query<Book>(sqlString).FirstOrDefault();
+            return db.Query<Book>(sqlString).FirstOrDefault()?.Copies ?? 0;
+        }
+
+        public static List<Book> BorrowedCopies(int titleId)
+        {
+            var sqlString = "select TOP 1 * from tblBook " +
+                            "join tblTitle on tblBook.TitleID = tblTitle.TitleID " +
+                            $"WHERE tblTitle.TitleID = '{titleId}' and BookID  not in " +
+                            "(select bookid from tblBorrow where DateReturned is null)";
+
+            // TODO avoid making a new connection per request
+            IDbConnection db =
+                new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
+
+            var data = db.Query<Book>(sqlString).ToList();
+
+            return data;
+        }
+
+        public static List<Book> BorrowedById(int titleid)
+        {
+            var sqlString = "select tblTitle.*, tbb.DueDate, tbb.BookId, tbu.EmailAddress from tblBorrow tbb " +
+                            "join tblUsers tbu on tbb.UserID = tbu.UserID " +
+                            "join tblBook on tbb.BookID = tblBook.BookID " +
+                            "join tblTitle on tblBook.TitleID = tblTitle.TitleID " +
+                            $"where tblTitle.TitleId = '{titleid}' AND DateReturned is null";
+
+            // TODO avoid making a new connection per request
+            IDbConnection db =
+                new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
+
+            var data = db.Query<Book>(sqlString).ToList();
+
+            return data;
         }
     }
 }
