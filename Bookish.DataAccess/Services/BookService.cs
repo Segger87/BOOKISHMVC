@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -48,23 +49,23 @@ namespace Bookish.DataAccess.Services
             return db.Query<Book>(sqlString).FirstOrDefault()?.Copies ?? 0;
         }
 
-        public static List<Book> BorrowedCopies(int titleId)
-        {
-            var sqlString = "select TOP 1 * from tblBook " +
-                            "join tblTitle on tblBook.TitleID = tblTitle.TitleID " +
-                            $"WHERE tblTitle.TitleID = '{titleId}' and BookID  not in " +
-                            "(select bookid from tblBorrow where DateReturned is null)";
+        //public static List<Book> BorrowedCopies(int titleId)
+        //{
+        //    var sqlString = "select TOP 1 * from tblBook " +
+        //                    "join tblTitle on tblBook.TitleID = tblTitle.TitleID " +
+        //                    $"WHERE tblTitle.TitleID = '{titleId}' and BookID  not in " +
+        //                    "(select bookid from tblBorrow where DateReturned is null)";
 
-            // TODO avoid making a new connection per request
-            IDbConnection db =
-                new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
+        //    // TODO avoid making a new connection per request
+        //    IDbConnection db =
+        //        new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
 
-            var data = db.Query<Book>(sqlString).ToList();
+        //    var data = db.Query<Book>(sqlString).ToList();
 
-            return data;
-        }
+        //    return data;
+        //}
 
-        public static List<Book> BorrowedById(int titleid)
+        public static List<Book> BorrowedCopies(int titleid)
         {
             var sqlString = "select tblTitle.*, tbb.DueDate, tbb.BookId, tbu.EmailAddress from tblBorrow tbb " +
                             "join tblUsers tbu on tbb.UserID = tbu.UserID " +
@@ -79,6 +80,36 @@ namespace Bookish.DataAccess.Services
             var data = db.Query<Book>(sqlString).ToList();
 
             return data;
+        }
+
+        public static int GetBookId(int titleId)
+        {
+            var sqlString = "Select TOP 1 BookID from tblBook  " +
+                            "join tblTitle on tblBook.TitleID = tblTitle.TitleID " +
+                            $"WHERE tblTitle.TitleID = '{titleId}' and BookID not in  " +
+                            "(Select bookid from tblBorrow where DateReturned is null) ";
+
+            IDbConnection db =
+                new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
+            var data = db.Query<Borrow>(sqlString).FirstOrDefault()?.BookId ?? 0; //null coalesce
+
+            return data;
+        }
+
+        public static void BorrowBook(int bookId, string emailAddress)
+        {
+            var today = System.DateTime.Today.Date;
+            var returnDay = today.AddMonths(1);
+
+            var sqlToday = Convert.ToDateTime(today).ToString("yyyy-MM-dd");
+            var sqlReturnDay = Convert.ToDateTime(returnDay).ToString("yyyy-MM-dd");
+
+            var sqlString = "INSERT into tblBorrow (UserID, BookID, DateBorrowed, DueDate) " +
+                            "Values ((select userid from tblUsers where EmailAddress = '" + emailAddress + "')" +
+                            ", " + bookId + ", '" + sqlToday + "', '" + sqlReturnDay + "')";
+            IDbConnection db =
+                new SqlConnection(ConfigurationManager.ConnectionStrings["BookishConnection"].ConnectionString);
+            db.Query(sqlString);
         }
     }
 }

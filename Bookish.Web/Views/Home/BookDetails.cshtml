@@ -2,7 +2,7 @@
 
 <div>
     <h2>Title: @Model.Title Number available in the Library: @Model.Copies</h2>
-    @Html.ActionLink("Rent A Copy", "SubtractBook", "Home", new { TitleID = Model.TitleId }, null)
+    @Html.ActionLink("Rent A Copy", "RentBook", "Home", new { titleId = @Model.TitleId, titleName = @Model.Title }, null)
 
 </div>
 

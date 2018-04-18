@@ -23,9 +23,10 @@ namespace Bookish.Web.Controllers
                 var userId = userManager.FindById(User.Identity.GetUserId()).Email;
                 var usersFirstName = UserService.RetriveFirstName(userId);
                 var userBooks = BookService.BooksForUser(userId);
-                
-   
-                return View(new HomeViewModel{
+
+
+                return View(new HomeViewModel
+                {
                     Books = userBooks,
                     FirstName = usersFirstName
                 });
@@ -37,14 +38,15 @@ namespace Bookish.Web.Controllers
             });
         }
 
-        public ActionResult Library(string searchString, int page = 1, int pagesize = 2)
+        public ActionResult Library(string searchString, int page = 1, int pagesize = 4)
         {
             var titles = BookService.listTitles();
             if (!String.IsNullOrEmpty(searchString))
             {
-                titles = titles.Where(s => s.Title.Contains(searchString)).ToList();
+                titles = titles.Where(s => s.Title.ToLower().Contains(searchString.ToLower())
+                                            || s.Author.ToLower().Contains(searchString.ToLower())).ToList();
             }
-           
+
             PagedList<BookTitle> model = new PagedList<BookTitle>(titles, page, pagesize);
             return View(model);
         }
@@ -75,5 +77,24 @@ namespace Bookish.Web.Controllers
                 Title = title
             });
         }
+        public ActionResult RentBook(int titleId, string titleName)
+        {
+            var userManager = HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = userManager.FindById(User.Identity.GetUserId()).Email;
+                // todo handle no available book
+                var bookId = BookService.GetBookId(titleId);
+                if (bookId == 0)
+                {
+                    return View(model: "sorry mate that book is not in stock");
+                }
+
+                BookService.BorrowBook(bookId, userId);
+            }
+
+            return View(model: "You have succesfully rented a copy of " + titleName);
+        }
+
     }
 }
